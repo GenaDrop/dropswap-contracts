@@ -1,0 +1,49 @@
+1. send_offer { hash, sender_near, sender_nfts[], receiver_id, receiver_near, receiver_nfts[] }
+-> check if attached near is fee + sender_near
+-> insert all the data into HashOffer
+
+2. nft_on_transfer {...msg}
+-> check if msg has correct data
+-> check if the hash exists in HashOffer
+-> check if signer is sender_id or receiver_id
+	-> if not either we quit
+-> check if token_id exists in the sender/receiver_nfts[]
+	-> if not quit
+-> we remove the token_id from the sender/receiver_nfts[]
+-> check if length of sender_nfts and receiver_nfts is 0
+	-> if not 0 just quit
+-> if length is 0, we do the swap
+	-> call nft_transfer on all the nfts
+-> delete HashOffer internal_delete_offer
+-> delete all TokensOwner and OwnerHash internal_delete_offer
+
+3. cancel_offer {hash}
+-> check if hash exists in HashOffer
+-> check if signer is sender_id/receiver_id in HashOffer
+-> delete HashOffer internal_delete_offer
+-> delete all TokensOwner and OwnerHash internal_delete_offer
+
+4. internal_delete_offer {token_id, hash}
+-> delete TokensOwner and OwnerHash
+
+
+LookupMap HashOffer
+key: hash
+sender_id
+sender_near
+sender_nfts[] (with all the token_ids)
+receiver_id
+receiver_near
+receiver_nfts[] (with all the token_ids)
+
+LookupMap OwnerHash
+key: owner_id
+hash
+
+LookupMap TokensOwner
+key: token_id
+owner_id
+
+
+notes:
+for multiple offers with the same nft, we check if their TokensApproval exists, if it exists and the 

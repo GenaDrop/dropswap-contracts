@@ -1,0 +1,1 @@
+C:\Users\bukub\Documents\Code\JS\nft\havenswap\target\wasm32-unknown-unknown\release\havenswap.wasm: C:\Users\bukub\Documents\Code\JS\nft\havenswap\src\account.rs C:\Users\bukub\Documents\Code\JS\nft\havenswap\src\lib.rs
