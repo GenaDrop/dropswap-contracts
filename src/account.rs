@@ -235,25 +235,35 @@ impl Contract {
 
 		// let offer_amount = attached_deposit - required_cost;
 
-		let promise = ext_nft_contract::nft_tokens_for_owner(account.clone(),
-		format!("0"),
-		1,
-		AccountId::try_from("mint.havendao.near".to_string()).unwrap(),
-		0, 
-		GAS_FOR_NFT_TRANSFER).then(ext_self::callback_send_offer(
-			hash,
-			sender_id,
-			sender_near,
-			sender_nfts,
-			receiver_id,
-			receiver_nfts,
-			is_holder,
-			env::current_account_id().clone(),
-			0,
-			GAS_FOR_NFT_TRANSFER
-		));
+		let promise = ext_nft_contract::ext(AccountId::try_from("mint.havendao.near".to_string()).unwrap()).nft_tokens_for_owner(account.clone(), format!("0"), 1);
 
-		return promise;
+
+		promise.then(
+			Self::ext(env::current_account_id()).with_static_gas(GAS_FOR_NFT_TRANSFER)
+			.callback_send_offer(hash, sender_id, sender_near, sender_nfts, receiver_id, receiver_nfts, is_holder)
+		)
+
+
+
+		// let promise1 = ext_nft_contract::ext(account.clone(),
+		// format!("0"),
+		// 1,
+		// AccountId::try_from("mint.havendao.near".to_string()).unwrap(),
+		// 0, 
+		// GAS_FOR_NFT_TRANSFER).then(ext_self::callback_send_offer(
+		// 	hash,
+		// 	sender_id,
+		// 	sender_near,
+		// 	sender_nfts,
+		// 	receiver_id,
+		// 	receiver_nfts,
+		// 	is_holder,
+		// 	env::current_account_id().clone(),
+		// 	0,
+		// 	GAS_FOR_NFT_TRANSFER
+		// ));
+
+		// return promise;
 		
 	}
 
@@ -409,7 +419,7 @@ impl Contract {
 			let mut tokens_arr = self.tokens_per_owner.get(&tx_stored.sender_id).unwrap();
 			
 			for nfts_data in sender_array.iter() {
-				ext_nft_contract::nft_transfer(tx_stored.receiver_id.clone(), nfts_data.token_id.clone(), nfts_data.contract_id.clone(), 1, GAS_FOR_NFT_TRANSFER);
+				ext_nft_contract::ext(nfts_data.contract_id.clone()).nft_transfer(tx_stored.receiver_id.clone(), nfts_data.token_id.clone());
 				let tokens_index = tokens_arr.iter().position(|x| *x.token_id == nfts_data.token_id.clone()).unwrap();
 				tokens_arr.remove(tokens_index);
 			}
@@ -424,7 +434,7 @@ impl Contract {
 			let mut tokens_arr2 = self.tokens_per_owner.get(&tx_stored.receiver_id).unwrap();
 
 			for nfts_data in receiver_array.iter() {
-				ext_nft_contract::nft_transfer(tx_stored.sender_id.clone(), nfts_data.token_id.clone(), nfts_data.contract_id.clone(), 1, GAS_FOR_NFT_TRANSFER);
+				ext_nft_contract::ext(nfts_data.contract_id.clone()).nft_transfer(tx_stored.sender_id.clone(), nfts_data.token_id.clone());
 				let tokens_index2 = tokens_arr2.iter().position(|x| *x.token_id == nfts_data.token_id.clone()).unwrap();
 				tokens_arr2.remove(tokens_index2);
 			}
@@ -491,13 +501,13 @@ impl Contract {
 
 		let signer_id = env::signer_account_id();
 
-		if (signer_id == env::current_account_id()) {
+		if signer_id == env::current_account_id() {
 
 			let signer_nfts = hash_transaction.sent_nfts;
 			let receiver_nfts = hash_transaction.received_nfts;
 
 
-			if (self.tokens_per_owner.get(&hash_transaction.sender_id).is_some()) {
+			if self.tokens_per_owner.get(&hash_transaction.sender_id).is_some() {
 				let mut tokens_arr = self.tokens_per_owner.get(&hash_transaction.sender_id).unwrap();
 
 				for nfts_data in signer_nfts.iter() {
@@ -571,11 +581,12 @@ impl Contract {
 		let signer_nfts = hash_transaction.sent_nfts;
 		let receiver_nfts = hash_transaction.received_nfts;
 
-		if (self.tokens_per_owner.get(&hash_transaction.sender_id).is_some()) {
+		if self.tokens_per_owner.get(&hash_transaction.sender_id).is_some() {
 			let mut tokens_arr = self.tokens_per_owner.get(&hash_transaction.sender_id).unwrap();
 
 			for nfts_data in signer_nfts.iter() {
-				ext_nft_contract::nft_transfer(hash_transaction.sender_id.clone(), nfts_data.token_id.clone(), nfts_data.contract_id.clone(), 1, GAS_FOR_NFT_TRANSFER);
+				ext_nft_contract::ext(nfts_data.contract_id.clone()).nft_transfer(hash_transaction.sender_id.clone(), nfts_data.token_id.clone());
+				// ext_nft_contract::nft_transfer(hash_transaction.sender_id.clone(), nfts_data.token_id.clone(), nfts_data.contract_id.clone(), 1, GAS_FOR_NFT_TRANSFER);
 				let tokens_index = tokens_arr.iter().position(|x| *x.token_id == nfts_data.token_id.clone()).unwrap();
 				tokens_arr.remove(tokens_index);
 			}
@@ -590,7 +601,8 @@ impl Contract {
 			let mut tokens_arr2 = self.tokens_per_owner.get(&hash_transaction.receiver_id).unwrap();
 
 			for nfts_data in receiver_nfts.iter() {
-				ext_nft_contract::nft_transfer(hash_transaction.receiver_id.clone(), nfts_data.token_id.clone(), nfts_data.contract_id.clone(), 1, GAS_FOR_NFT_TRANSFER);
+				ext_nft_contract::ext(nfts_data.contract_id.clone()).nft_transfer(hash_transaction.receiver_id.clone(), nfts_data.token_id.clone());
+				// ext_nft_contract::nft_transfer(hash_transaction.receiver_id.clone(), nfts_data.token_id.clone(), nfts_data.contract_id.clone(), 1, GAS_FOR_NFT_TRANSFER);
 				let tokens_index = tokens_arr2.iter().position(|x| *x.token_id == nfts_data.token_id.clone()).unwrap();
 				tokens_arr2.remove(tokens_index);
 			}
