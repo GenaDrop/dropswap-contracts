@@ -1,10 +1,9 @@
 use crate::*;
 use near_sdk::{env, Promise, ext_contract, Gas, PromiseOrValue, assert_one_yocto, PromiseResult};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use::near_sdk::serde::{self, Serialize, Deserialize};
+use::near_sdk::serde::{Serialize, Deserialize};
 use near_sdk::AccountId;
 use std::collections::HashMap;
-use near_sdk::json_types::Base64VecU8;
 
 
 pub type SalePriceInYoctoNear = U128;
@@ -131,13 +130,13 @@ impl Contract {
 					let transaction_data = HashOffer {
 						sender_id: sender_id.clone(),
 						sender_near: u128::from(sender_near),
-						sender_nfts: sender_nfts,
+						sender_nfts,
 						sent_nfts: Vec::new(),
 						receiver_id: receiver_id.clone(),
-						receiver_nfts: receiver_nfts,
+						receiver_nfts,
 						received_nfts: Vec::new(),
 						timestamp: env::block_timestamp(),
-						is_monarch: is_monarch,
+						is_monarch,
 					};
 
 					self.hash_map.insert(&hash, &transaction_data);
@@ -162,7 +161,6 @@ impl Contract {
 				}
 				else {
 					env::panic_str("ERR_WRONG_VAL_RECEIVED");
-					false
 				}
 			},
 			PromiseResult::Failed => env::panic_str("ERR_CALLBACK_FAILED"),
@@ -413,7 +411,7 @@ impl Contract {
 		let sender_array = tx_stored.sent_nfts;
 		let receiver_array = tx_stored.received_nfts;
 
-		let mut temp_tokens_arr = self.tokens_per_owner.get(&tx_stored.sender_id);
+		let temp_tokens_arr = self.tokens_per_owner.get(&tx_stored.sender_id);
 
 		if temp_tokens_arr.is_some() {
 			let mut tokens_arr = self.tokens_per_owner.get(&tx_stored.sender_id).unwrap();
@@ -428,7 +426,7 @@ impl Contract {
 			self.tokens_per_owner.insert(&tx_stored.sender_id, &tokens_arr);
 		}
 
-		let mut temp_tokens_arr2 = self.tokens_per_owner.get(&tx_stored.receiver_id);
+		let temp_tokens_arr2 = self.tokens_per_owner.get(&tx_stored.receiver_id);
 
 		if temp_tokens_arr2.is_some() {
 			let mut tokens_arr2 = self.tokens_per_owner.get(&tx_stored.receiver_id).unwrap();
@@ -494,7 +492,7 @@ impl Contract {
 	) {
 		assert_one_yocto();
 
-		let mut hash_transaction = self.hash_map.get(&hash).unwrap();
+		let hash_transaction = self.hash_map.get(&hash).unwrap();
 
 		let is_monarch = hash_transaction.is_monarch;
 

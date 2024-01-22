@@ -1,8 +1,8 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap, UnorderedSet};
+use near_sdk::collections::{LookupMap};
 use near_sdk::json_types::U128;
 use near_sdk::{near_bindgen, AccountId, require, env};
-use::near_sdk::serde::{self, Serialize, Deserialize};
+use::near_sdk::serde::{Serialize, Deserialize};
 
 
 pub use crate::account::*;
@@ -51,8 +51,8 @@ impl Default for Contract {
 			hash_map: LookupMap::new(b"hash_map".to_vec()),
 			hashes_per_owner: LookupMap::new(b"hashes_per_owner".to_vec()),
 			tokens_per_owner: LookupMap::new(b"tokens_per_owner".to_vec()),
-			owner_id: "v1.havenswap.near".to_string(), // change me
-			fee_wallet: AccountId::new_unchecked("fee.havenswap.near".to_string()), // change me
+			owner_id: "swap.genadrop.near".to_string(), // change me
+			fee_wallet: AccountId::new_unchecked("fee.genadrop.near".to_string()), // change me
 			required_cost: U128(100000000000000000000000),
 		}
 	}

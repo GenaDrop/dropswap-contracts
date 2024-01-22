@@ -1,15 +1,17 @@
-[lib]
-crate-type = ["cdylib"]
-
 [package]
-name = "havenswap"
-version = "0.1.0"
+name = "genadropswap"
+version = "1.0.0"
+authors = ["Prometheus"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib"]
+
+
 
 [dependencies]
-near-sdk = "4.0.0-pre.4"
+near-sdk = "^4.1.1"
 
 [profile.release]
 codegen-units = 1
